@@ -204,7 +204,7 @@ async function analyzeWithAI(prompt: string, model: string = 'anthropic/claude-3
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 850,
+      max_tokens: 700,
       temperature: 0.7,
     });
 
