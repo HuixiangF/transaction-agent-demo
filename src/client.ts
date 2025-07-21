@@ -30,12 +30,12 @@ async function runEnhancedClient() {
   });
 
   await client.connect(transport);
-  console.log("🏦 Connected to transaction banking MCP server");
+  console.log("Connected to transaction banking MCP server");
 
   try {
     // Test intelligent transfer (user didn't specify target account)
     console.log("\n=== INTELLIGENT TRANSFER TEST ===");
-    console.log("🎯 User request: 'Transfer 800 AUD from my AUD account if FX below 0.7'");
+    console.log("User request: 'Transfer 800 AUD from my AUD account if FX below 0.7'");
     
     const intelligentTransfer = await client.callTool({
       name: "transferFunds",
@@ -47,7 +47,7 @@ async function runEnhancedClient() {
       },
     });
 
-    console.log("🔄 Transfer Result:", JSON.stringify(intelligentTransfer, null, 2));
+    console.log("Transfer Result:", JSON.stringify(intelligentTransfer, null, 2));
 
     // Validate before transfer
     console.log("\n=== PRE-CONDITION VALIDATION TEST ===");
@@ -59,7 +59,7 @@ async function runEnhancedClient() {
       },
     });
 
-    console.log("✅ Validation Result:", JSON.stringify(validation, null, 2));
+    console.log("Validation Result:", JSON.stringify(validation, null, 2));
 
     // Get FX rates
     console.log("\n=== FX RATES TEST ===");
@@ -80,12 +80,12 @@ async function runEnhancedClient() {
       arguments: {}
     });
 
-    console.log("💼 All Accounts:", JSON.stringify(allAccounts, null, 2));
+    console.log("All Accounts:", JSON.stringify(allAccounts, null, 2));
 
     // Test advanced prompts
     console.log("\n=== SMART PROMPTS TEST ===");
     const promptsList = await client.listPrompts();
-    console.log("📝 Available Prompts:", JSON.stringify(promptsList, null, 2));
+    console.log("Available Prompts:", JSON.stringify(promptsList, null, 2));
 
     if (promptsList.prompts && promptsList.prompts.length > 0) {
       const transferAdvisor = await client.getPrompt({
@@ -96,7 +96,7 @@ async function runEnhancedClient() {
         }
       });
 
-      console.log("🎯 Transfer Advisor Prompt:", JSON.stringify(transferAdvisor, null, 2));
+      console.log("Transfer Advisor Prompt:", JSON.stringify(transferAdvisor, null, 2));
 
       // Use AI to analyze the prompt if available
       if (openai && transferAdvisor.messages && transferAdvisor.messages[0]) {
@@ -110,7 +110,7 @@ async function runEnhancedClient() {
     console.log("\n=== REAL-WORLD SCENARIO SIMULATION ===");
     
     // Scenario 1: User says "I want to move some money to USD"
-    console.log("\n📱 User: 'I want to move some money to USD'");
+    console.log("\n User: 'I want to move some money to USD'");
     const scenarioTransfer = await client.callTool({
       name: "transferFunds",
       arguments: {
@@ -123,7 +123,7 @@ async function runEnhancedClient() {
     console.log("🎯 Smart Transfer:", JSON.stringify(scenarioTransfer, null, 2));
 
     // Scenario 2: Check what would happen with different amounts
-    console.log("\n📱 User: 'What if I transferred 5000 instead?'");
+    console.log("\n User: 'What if I transferred 5000 instead?'");
     const bigTransferValidation = await client.callTool({
       name: "validateTransfer",
       arguments: {
@@ -132,15 +132,15 @@ async function runEnhancedClient() {
         preferredCurrency: "USD"
       },
     });
-    console.log("⚖️ Validation for larger amount:", JSON.stringify(bigTransferValidation, null, 2));
+    console.log("Validation for larger amount:", JSON.stringify(bigTransferValidation, null, 2));
 
-    console.log("\n✅ Enhanced client testing completed!");
+    console.log("\n Client testing completed!");
 
   } catch (error) {
-    console.error("❌ Error during enhanced client execution:", error);
+    console.error("Error during client execution:", error);
   } finally {
     await client.close();
-    console.log("🔌 Enhanced client connection closed");
+    console.log("Client connection closed");
   }
 }
 
@@ -164,13 +164,13 @@ async function analyzeWithAI(prompt: string, model: string = 'anthropic/claude-3
   }
 }
 
-// Graceful shutdown
+// shutdown
 process.on('SIGINT', () => {
-  console.log('\n👋 Shutting down enhanced client gracefully...');
+  console.log('\n Shutting down client...');
   process.exit(0);
 });
 
 runEnhancedClient().catch((err) => {
-  console.error("Enhanced client error:", err);
+  console.error("Client error:", err);
   process.exit(1);
 });
