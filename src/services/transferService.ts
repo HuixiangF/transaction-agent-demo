@@ -3,6 +3,10 @@ import { mockAPI } from './mockApi.js';
 
 export class TransferService {
   
+  /**
+   * Elicitation: If the user does not specify a target account, the system will try to infer the best one.
+   * This is an example of prompting for missing information in an agentic way.
+   */
   async findBestTargetAccount(fromAccountId: string, preferredCurrency?: string): Promise<string | null> {
     const fromAccount = await mockAPI.getAccount(fromAccountId);
     if (!fromAccount) return null;
@@ -33,6 +37,11 @@ export class TransferService {
     return targetAccounts[0].id;
   }
 
+  /**
+   * Agentic thinking: Before executing a transfer, the system checks all relevant pre-conditions.
+   * This includes account existence, status, balance, transfer limits, and FX rate thresholds.
+   * If any condition fails, the system returns detailed errors instead of proceeding blindly.
+   */
   async validatePreConditions(request: TransferRequest): Promise<{ valid: boolean; errors: string[] }> {
     const errors: string[] = [];
 
@@ -43,7 +52,7 @@ export class TransferService {
       return { valid: false, errors };
     }
 
-    // Resolve target account if not specified
+    // Elicitation: If toAccount is missing, try to infer it automatically
     if (!request.toAccount) {
         const bestAccount = await this.findBestTargetAccount(request.fromAccount);
         request.toAccount = bestAccount ?? undefined;
@@ -59,7 +68,7 @@ export class TransferService {
       return { valid: false, errors };
     }
 
-    // Account status checks
+    // Agentic: Check account status
     if (fromAccount.status !== 'active') {
       errors.push(`Source account is ${fromAccount.status}`);
     }
@@ -67,12 +76,12 @@ export class TransferService {
       errors.push(`Target account is ${toAccount.status}`);
     }
 
-    // Balance check
+    // Agentic: Check balance
     if (fromAccount.balance < request.amount) {
       errors.push(`Insufficient funds. Available: ${fromAccount.balance}, Required: ${request.amount}`);
     }
 
-    // Transfer limits
+    // Agentic: Check transfer limits
     if (request.amount > fromAccount.dailyTransferLimit) {
       errors.push(`Amount exceeds daily transfer limit of ${fromAccount.dailyTransferLimit}`);
     }
@@ -85,7 +94,7 @@ export class TransferService {
       errors.push(`Transfer would exceed monthly limit. This month's transfers: ${fromAccount.transfersThisMonth}`);
     }
 
-    // FX threshold check if different currencies
+    // Agentic: FX threshold check if different currencies
     if (fromAccount.currency !== toAccount.currency && request.fxThreshold) {
       const fxRate = await mockAPI.getFXRate(fromAccount.currency, toAccount.currency);
       if (!fxRate) {
@@ -98,8 +107,12 @@ export class TransferService {
     return { valid: errors.length === 0, errors };
   }
 
+  /**
+   * Agentic thinking: Only execute the transfer if all pre-conditions are satisfied.
+   * Otherwise, return a detailed error message.
+   */
   async executeTransfer(request: TransferRequest): Promise<TransferResult> {
-    // Pre-condition validation
+    // Pre-condition validation (agentic thinking)
     const validation = await this.validatePreConditions(request);
     if (!validation.valid) {
       return {
@@ -123,7 +136,7 @@ export class TransferService {
     let exchangeRate = 1;
     let fee = 0;
 
-    // Handle currency conversion
+    // Agentic: Handle currency conversion and FX fee if needed
     if (fromAccount.currency !== toAccount.currency) {
       const fxRate = await mockAPI.getFXRate(fromAccount.currency, toAccount.currency);
       if (!fxRate) {
