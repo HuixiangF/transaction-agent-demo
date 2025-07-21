@@ -18,7 +18,7 @@ This project is a demo of an intelligent banking agent system, featuring a Model
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/HuixiangF/transaction-agent-demo.git
    cd transaction-agent-demo
    ```
 2. **Install dependencies:**
