@@ -1,0 +1,33 @@
+{
+  "name": "transaction-agent-demo",
+  "version": "1.0.0",
+  "description": "Enhanced Banking MCP Server with intelligent transfer logic",
+  "type": "module",
+  "main": "src/banking-mcp-server.ts",
+  "scripts": {
+    "dev": "tsx src/client.ts",
+    "server": "tsx src/banking-mcp-server.ts",
+    "build": "tsc",
+    "start": "node dist/client.js",
+    "test": "tsx src/tests.ts"
+  },
+  "keywords": [
+    "mcp",
+    "banking",
+    "ai",
+    "financial"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.3.1",
+    "openai": "^4.57.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.0.0",
+    "typescript": "^5.8.3"
+  }
+}
