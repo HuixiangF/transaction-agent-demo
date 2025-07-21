@@ -245,7 +245,7 @@ export class ReasoningService {
 
   // Helper methods for pre-checks
   private async validateAccountStatus(fromAccountId?: string, toAccountId?: string): Promise<any> {
-    const results = { valid: true, issues: [] };
+    const results: { valid: boolean; issues: string[] } = { valid: true, issues: [] };
     
     if (fromAccountId) {
       const fromAccount = await mockAPI.getAccount(fromAccountId);

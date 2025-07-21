@@ -15,7 +15,7 @@ if (process.env.OPENROUTER_API_KEY) {
       'X-Title': process.env.SITE_NAME || 'Transaction Banking Agent MCP',
     },
   });
-  console.log("🤖 OpenRouter API initialized");
+  console.log("OpenRouter API initialized");
 }
 
 async function runEnhancedClient() {
@@ -30,50 +30,116 @@ async function runEnhancedClient() {
   });
 
   await client.connect(transport);
-  console.log("Connected to transaction banking MCP server");
+  console.log("Connected to enhanced banking MCP server");
 
   try {
-    // Test intelligent transfer (user didn't specify target account)
-    console.log("\n=== INTELLIGENT TRANSFER TEST ===");
-    console.log("User request: 'Transfer 800 AUD from my AUD account if FX below 0.7'");
+    // First, list available tools to verify connection
+    console.log("\n=== AVAILABLE TOOLS ===");
+    const tools = await client.listTools();
+    console.log("Available tools:", tools.tools?.map(t => t.name) || []);
+
+    // Test 1: Smart Transfer Intent Analysis
+    console.log("\n=== INTENT ANALYSIS TEST ===");
+    console.log("User says: 'I want to move 800 to USD if the rate is good'");
     
-    const intelligentTransfer = await client.callTool({
-      name: "transferFunds",
+    const intentAnalysis = await client.callTool({
+      name: "analyzeTransferIntent",
       arguments: {
+        userInput: "I want to move 800 to USD if the rate is good",
+        providedArgs: {
+          amount: 800,
+          preferredCurrency: "USD"
+        }
+      }
+    });
+    
+    console.log("Intent Analysis:", JSON.stringify(intentAnalysis, null, 2));
+
+    // Test 2: Smart Transfer with Reasoning
+    console.log("\n=== SMART TRANSFER TEST ===");
+    console.log("User request: 'Transfer 800 AUD to USD account'");
+    
+    const smartTransfer = await client.callTool({
+      name: "smartTransferFunds",
+      arguments: {
+        userInput: "Transfer 800 AUD to USD account",
         amount: 800,
         fromAccount: "AUD-account",
-        fxThreshold: 0.7,
-        preferredCurrency: "USD" // AI could infer this from context
-      },
+        preferredCurrency: "USD"
+      }
     });
 
-    console.log("Transfer Result:", JSON.stringify(intelligentTransfer, null, 2));
+    console.log("Smart Transfer Result:", JSON.stringify(smartTransfer, null, 2));
 
-    // Validate before transfer
-    console.log("\n=== PRE-CONDITION VALIDATION TEST ===");
-    const validation = await client.callTool({
-      name: "validateTransfer",
+    // Test 3: Incomplete Request (should trigger elicitation)
+    console.log("\n=== ELICITATION TEST ===");
+    console.log("User says: 'I want to move some money'");
+    
+    const incompleteTransfer = await client.callTool({
+      name: "smartTransferFunds",
       arguments: {
-        amount: 15000, // This should exceed limits
+        userInput: "I want to move some money"
+        // Note: no amount, no accounts specified
+      }
+    });
+
+    console.log("Elicitation Response:", JSON.stringify(incompleteTransfer, null, 2));
+
+    // Test 4: Intelligent Account Check
+    console.log("\n=== INTELLIGENT ACCOUNT CHECK ===");
+    console.log("User asks: 'How's my AUD account doing?'");
+    
+    const accountCheck = await client.callTool({
+      name: "intelligentAccountCheck",
+      arguments: {
+        userInput: "How's my AUD account doing?",
+        accountId: "AUD-account"
+      }
+    });
+
+    console.log("Account Analysis:", JSON.stringify(accountCheck, null, 2));
+
+    // Test 5: Transfer with Pre-condition Failures
+    console.log("\n=== PRE-CONDITION FAILURE TEST ===");
+    console.log("User tries to transfer too much money");
+    
+    const failureTest = await client.callTool({
+      name: "smartTransferFunds",
+      arguments: {
+        userInput: "Transfer all my money to USD",
+        amount: 50000, // This should exceed limits
+        fromAccount: "AUD-account",
+        preferredCurrency: "USD"
+      }
+    });
+
+    console.log("Failure Handling:", JSON.stringify(failureTest, null, 2));
+
+    // Test 6: Traditional tool still works
+    console.log("\n=== BACKWARD COMPATIBILITY TEST ===");
+    const traditionalTransfer = await client.callTool({
+      name: "validateTransfer", // Original tool
+      arguments: {
+        amount: 1000,
         fromAccount: "AUD-account"
-      },
+      }
     });
 
-    console.log("Validation Result:", JSON.stringify(validation, null, 2));
+    console.log("Traditional Tool:", JSON.stringify(traditionalTransfer, null, 2));
 
-    // Get FX rates
-    console.log("\n=== FX RATES TEST ===");
-    const fxRate = await client.callTool({
-      name: "getFXRate", 
+    // Test 7: Account inference test
+    console.log("\n=== ACCOUNT INFERENCE TEST ===");
+    const inferenceTest = await client.callTool({
+      name: "intelligentAccountCheck",
       arguments: {
-        from: "AUD",
-        to: "USD"
-      },
+        userInput: "Check my USD balance"
+        // No accountId specified - should infer from "USD" mention
+      }
     });
 
-    console.log("💱 FX Rate:", JSON.stringify(fxRate, null, 2));
+    console.log("Account Inference:", JSON.stringify(inferenceTest, null, 2));
 
-    // Portfolio overview
+    // Test 8: Get all accounts for context
     console.log("\n=== PORTFOLIO OVERVIEW ===");
     const allAccounts = await client.callTool({
       name: "getAllAccounts",
@@ -82,62 +148,47 @@ async function runEnhancedClient() {
 
     console.log("All Accounts:", JSON.stringify(allAccounts, null, 2));
 
-    // Test advanced prompts
-    console.log("\n=== SMART PROMPTS TEST ===");
-    const promptsList = await client.listPrompts();
-    console.log("Available Prompts:", JSON.stringify(promptsList, null, 2));
-
-    if (promptsList.prompts && promptsList.prompts.length > 0) {
-      const transferAdvisor = await client.getPrompt({
-        name: "transfer_advisor",
+    // Test 9: Real-world scenario with AI analysis
+    console.log("\n=== REAL-WORLD SCENARIO WITH AI ===");
+    if (openai) {
+      const scenarioAnalysis = await client.callTool({
+        name: "analyzeTransferIntent",
         arguments: {
-          fromAccount: "AUD-account",
-          amount: "800"
+          userInput: "I'm worried about the exchange rate, should I transfer my AUD to USD now or wait?",
+          providedArgs: {
+            fromAccount: "AUD-account"
+          }
         }
       });
 
-      console.log("Transfer Advisor Prompt:", JSON.stringify(transferAdvisor, null, 2));
+      console.log("AI-Ready Analysis:", JSON.stringify(scenarioAnalysis, null, 2));
 
-      // Use AI to analyze the prompt if available
-      if (openai && transferAdvisor.messages && transferAdvisor.messages[0]) {
-        console.log("\n🤖 AI ANALYSIS OF TRANSFER RECOMMENDATION:");
-        const aiAdvice = await analyzeWithAI(transferAdvisor.messages[0].content.text as string);
-        console.log(aiAdvice);
+      // Use AI to provide advice based on the analysis
+      if (Array.isArray(scenarioAnalysis.content)) {
+        for (const item of scenarioAnalysis.content) {
+          if (item?.text) {
+            const aiAdvice = await analyzeWithAI(
+              `Based on this banking analysis: ${item.text}\n\nProvide practical advice for the user about whether to transfer AUD to USD now or wait.`
+            );
+            console.log("AI Advice:", aiAdvice);
+          }
+        }
       }
     }
 
-    // Real-world scenario testing
-    console.log("\n=== REAL-WORLD SCENARIO SIMULATION ===");
-    
-    // Scenario 1: User says "I want to move some money to USD"
-    console.log("\n User: 'I want to move some money to USD'");
-    const scenarioTransfer = await client.callTool({
-      name: "transferFunds",
-      arguments: {
-        amount: 1000,
-        fromAccount: "AUD-account", 
-        preferredCurrency: "USD"
-        // Note: no toAccount specified, no fxThreshold
-      },
-    });
-    console.log("🎯 Smart Transfer:", JSON.stringify(scenarioTransfer, null, 2));
-
-    // Scenario 2: Check what would happen with different amounts
-    console.log("\n User: 'What if I transferred 5000 instead?'");
-    const bigTransferValidation = await client.callTool({
-      name: "validateTransfer",
-      arguments: {
-        amount: 5000,
-        fromAccount: "AUD-account",
-        preferredCurrency: "USD"
-      },
-    });
-    console.log("Validation for larger amount:", JSON.stringify(bigTransferValidation, null, 2));
-
-    console.log("\n Client testing completed!");
+    console.log("\nEnhanced client testing completed successfully!");
 
   } catch (error) {
     console.error("Error during client execution:", error);
+    
+    // Enhanced error reporting
+    if (error instanceof Error) {
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack?.split('\n').slice(0, 5).join('\n') // First 5 lines of stack
+      });
+    }
   } finally {
     await client.close();
     console.log("Client connection closed");
@@ -153,7 +204,7 @@ async function analyzeWithAI(prompt: string, model: string = 'anthropic/claude-3
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1000,
+      max_tokens: 850,
       temperature: 0.7,
     });
 
@@ -164,13 +215,25 @@ async function analyzeWithAI(prompt: string, model: string = 'anthropic/claude-3
   }
 }
 
-// shutdown
+// Enhanced shutdown handling
 process.on('SIGINT', () => {
-  console.log('\n Shutting down client...');
+  console.log('\nGracefully shutting down client...');
   process.exit(0);
 });
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+// Add some debugging environment info
+console.log("Debug Info:");
+console.log("- Node version:", process.version);
+console.log("- Working directory:", process.cwd());
+console.log("- OpenRouter API key present:", !!process.env.OPENROUTER_API_KEY);
+
 runEnhancedClient().catch((err) => {
-  console.error("Client error:", err);
+  console.error("Client startup error:", err);
+  console.error("Stack trace:", err.stack);
   process.exit(1);
 });
