@@ -112,4 +112,3 @@ See [`src/types.ts`](src/types.ts) for all type definitions, including `Account`
 ## License
 
 MIT 
->>>>>>> f96796a (initial commit)
