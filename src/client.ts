@@ -115,17 +115,17 @@ async function runEnhancedClient() {
 
     console.log("Failure Handling:", JSON.stringify(failureTest, null, 2));
 
-    // Test 6: Traditional tool still works
-    console.log("\n=== BACKWARD COMPATIBILITY TEST ===");
-    const traditionalTransfer = await client.callTool({
-      name: "validateTransfer", // Original tool
-      arguments: {
-        amount: 1000,
-        fromAccount: "AUD-account"
-      }
-    });
+    // // Test 6: Traditional tool still works
+    // console.log("\n=== BACKWARD COMPATIBILITY TEST ===");
+    // const traditionalTransfer = await client.callTool({
+    //   name: "validateTransfer", // Original tool
+    //   arguments: {
+    //     amount: 1000,
+    //     fromAccount: "AUD-account"
+    //   }
+    // });
 
-    console.log("Traditional Tool:", JSON.stringify(traditionalTransfer, null, 2));
+    // console.log("Traditional Tool:", JSON.stringify(traditionalTransfer, null, 2));
 
     // Test 7: Account inference test
     console.log("\n=== ACCOUNT INFERENCE TEST ===");

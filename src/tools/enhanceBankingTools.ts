@@ -82,7 +82,7 @@ export const enhancedBankingTools = [
 ];
 
 export async function handleEnhancedToolCall(name: string, args: any): Promise<any> {
-  console.error(`Handling enhanced tool: ${name}`);
+  console.log(`Handling enhanced tool: ${name}`);
   
   try {
     switch (name) {
@@ -97,7 +97,7 @@ export async function handleEnhancedToolCall(name: string, args: any): Promise<a
         
       default:
         // Fall back to original tool handlers
-        console.error(`Falling back to original tool handler for: ${name}`);
+        console.log(`Falling back to original tool handler for: ${name}`);
         return await handleToolCall(name, args);
     }
   } catch (error) {
@@ -110,12 +110,12 @@ export async function handleEnhancedToolCall(name: string, args: any): Promise<a
  * AGENTIC THINKING: Execute smart transfer with comprehensive reasoning
  */
 async function executeSmartTransfer(args: any): Promise<any> {
-  console.error("Executing smart transfer with reasoning");
+  console.log("Executing smart transfer with reasoning");
   const { userInput, ...transferArgs } = args;
   
   try {
     // Step 1: ELICITATION - Analyze intent and missing information
-    console.error("Step 1: Analyzing user intent");
+    console.log("Step 1: Analyzing user intent");
     const reasoningContext = await reasoningService.analyzeUserIntent(userInput, transferArgs);
     
     // If critical information is missing, return elicitation prompts
@@ -123,7 +123,7 @@ async function executeSmartTransfer(args: any): Promise<any> {
       const highPriorityPrompts = reasoningContext.elicitationPrompts.filter(p => p.priority === 'high');
       
       if (highPriorityPrompts.length > 0) {
-        console.error("Returning elicitation prompts");
+        console.log("Returning elicitation prompts");
         return {
           needsElicitation: true,
           intent: reasoningContext.userIntent,
@@ -136,20 +136,20 @@ async function executeSmartTransfer(args: any): Promise<any> {
     }
     
     // Step 2: AGENTIC THINKING - Determine required pre-checks
-    console.error("Step 2: Determining pre-checks");
+    console.log("Step 2: Determining pre-checks");
     const requiredPreChecks = await reasoningService.determineRequiredPreChecks(
       reasoningContext.userIntent, 
       transferArgs
     );
     
-    console.error(`Determined required pre-checks: ${requiredPreChecks.join(', ')}`);
+    console.log(`Determined required pre-checks: ${requiredPreChecks.join(', ')}`);
     
     // Step 3: Execute pre-checks
-    console.error("Step 3: Executing pre-checks");
+    console.log("Step 3: Executing pre-checks");
     const preCheckResults = await reasoningService.executePreChecks(requiredPreChecks, transferArgs);
     
     // Step 4: Analyze pre-check results and decide on action
-    console.error("Step 4: Analyzing pre-check results");
+    console.log("Step 4: Analyzing pre-check results");
     const criticalFailures = Object.entries(preCheckResults).filter(([check, result]: [string, any]) => {
       if (check === 'validate_account_status') return !result.valid;
       if (check === 'check_balance_sufficiency') return !result.sufficient;
@@ -158,7 +158,7 @@ async function executeSmartTransfer(args: any): Promise<any> {
     });
     
     if (criticalFailures.length > 0) {
-      console.error("Critical failures detected, cannot proceed");
+      console.log("Critical failures detected, cannot proceed");
       return {
         canProceed: false,
         reason: "Pre-condition checks failed",
@@ -172,7 +172,7 @@ async function executeSmartTransfer(args: any): Promise<any> {
     }
     
     // Step 5: If all checks pass, execute the transfer
-    console.error("Step 5: All checks passed, executing transfer");
+    console.log("Step 5: All checks passed, executing transfer");
     const transferResult = await transferService.executeTransfer(transferArgs);
     
     return {
@@ -201,7 +201,7 @@ async function executeSmartTransfer(args: any): Promise<any> {
  * ELICITATION: Analyze incomplete requests and provide guidance
  */
 async function analyzeTransferIntent(args: any): Promise<any> {
-  console.error("Analyzing transfer intent");
+  console.log("Analyzing transfer intent");
   const { userInput, providedArgs = {} } = args;
   
   try {
@@ -239,7 +239,7 @@ async function analyzeTransferIntent(args: any): Promise<any> {
  * INTELLIGENT ACCOUNT CHECKING: Context-aware account analysis
  */
 async function executeIntelligentAccountCheck(args: any): Promise<any> {
-  console.error("Executing intelligent account check");
+  console.log("Executing intelligent account check");
   const { userInput, accountId } = args;
   
   try {

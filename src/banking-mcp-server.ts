@@ -27,17 +27,17 @@ const server = new Server(
 
 // Tool handlers - now using enhanced tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
-  console.error("Listing tools:", enhancedBankingTools.map(t => t.name));
+  console.log("Listing tools:", enhancedBankingTools.map(t => t.name));
   return { tools: enhancedBankingTools };
 });
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
-  console.error(`Tool call: ${name}`, JSON.stringify(args, null, 2));
+  console.log(`Tool call: ${name}`, JSON.stringify(args, null, 2));
   
   try {
     const result = await handleEnhancedToolCall(name, args);
-    console.error(`Tool result for ${name}:`, JSON.stringify(result, null, 2));
+    console.log(`Tool result for ${name}:`, JSON.stringify(result, null, 2));
     
     return {
       content: [
@@ -66,13 +66,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // Prompt handlers  
 server.setRequestHandler(ListPromptsRequestSchema, async () => {
-  console.error("Listing prompts");
+  console.log("Listing prompts");
   return { prompts: bankingPrompts };
 });
 
 server.setRequestHandler(GetPromptRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
-  console.error(`Prompt call: ${name}`, args);
+  console.log(`Prompt call: ${name}`, args);
   
   try {
     const result = await handlePromptCall(name, args || {});
@@ -99,8 +99,8 @@ server.setRequestHandler(GetPromptRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Enhanced Banking Agent MCP Server running on stdio with reasoning capabilities");
-  console.error("Available enhanced tools:", enhancedBankingTools.map(t => t.name).join(', '));
+  console.log("Enhanced Banking Agent MCP Server running on stdio with reasoning capabilities");
+  console.log("Available enhanced tools:", enhancedBankingTools.map(t => t.name).join(', '));
 }
 
 main().catch((error) => {
