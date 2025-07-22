@@ -284,7 +284,7 @@ async function executeIntelligentAccountCheck(args: any): Promise<any> {
       recommendations: await generateAccountRecommendations(account, intent)
     };
   } catch (error) {
-    console.error("💥 Error in executeIntelligentAccountCheck:", error);
+    console.error("Error in executeIntelligentAccountCheck:", error);
     return {
       error: error instanceof Error ? error.message : 'Unknown error',
       toolName: 'intelligentAccountCheck'
